@@ -7,8 +7,8 @@
   html, body {
     margin: 0;
     height: 100%;
-    background: #111;
-    color: #eee;
+    background: #ffd500;
+    color: #222;
     font-family: sans-serif;
     overflow: hidden;
   }
@@ -42,7 +42,7 @@
   let running = true;
 
   function drawTrack() {
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 6]);
     ctx.beginPath();
@@ -51,14 +51,17 @@
     ctx.setLineDash([]);
   }
 
+  const ANT_SCALE = 2.5;
+
   function drawAnt(x, y, rotation) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rotation);
+    ctx.scale(ANT_SCALE, ANT_SCALE);
 
-    ctx.fillStyle = '#222';
+    ctx.fillStyle = '#1a1a1a';
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.2;
 
     // corpo (tre segmenti)
     for (const [dx, r] of [[-12, 6], [0, 7], [12, 8]]) {
