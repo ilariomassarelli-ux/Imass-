@@ -4,89 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calcolatrice scientifica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #1c1c1e;
-    --display: #000;
-    --num: #333;
-    --num-hover: #555;
-    --op: #ff9f0a;
-    --op-hover: #ffb340;
-    --fn: #505050;
-    --fn-hover: #6a6a6a;
-    --mem: #2a6fdb;
-    --mem-hover: #4a8ef0;
-    --text: #fff;
+    --text: #f5f5f7;
+    --text-dim: rgba(245,245,247,0.55);
+    --glass: rgba(255,255,255,0.06);
+    --glass-strong: rgba(255,255,255,0.12);
+    --border: rgba(255,255,255,0.08);
+    --num-grad: linear-gradient(145deg, #3a3a3f, #232327);
+    --num-hover: linear-gradient(145deg, #48484d, #2e2e33);
+    --op-grad: linear-gradient(145deg, #ff9f0a, #ff6a00);
+    --op-hover: linear-gradient(145deg, #ffb340, #ff8a2a);
+    --fn-grad: linear-gradient(145deg, #5a5a62, #3a3a42);
+    --fn-hover: linear-gradient(145deg, #6e6e78, #4a4a54);
+    --mem-grad: linear-gradient(145deg, #4f7cff, #2a4ed0);
+    --mem-hover: linear-gradient(145deg, #6a92ff, #3a5ee0);
+    --clear-grad: linear-gradient(145deg, #d4d4d4, #a0a0a0);
+    --clear-hover: linear-gradient(145deg, #eaeaea, #b5b5b5);
   }
+  * { box-sizing: border-box; }
   html, body {
     margin: 0;
     min-height: 100%;
-    background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    background:
+      radial-gradient(1200px 800px at 15% 10%, #2b1b5a 0%, transparent 55%),
+      radial-gradient(900px 700px at 90% 90%, #0b4a66 0%, transparent 55%),
+      radial-gradient(700px 600px at 80% 20%, #4a1e6b 0%, transparent 55%),
+      linear-gradient(135deg, #0a0a18 0%, #070712 100%);
+    background-attachment: fixed;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
+    padding: 24px;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    opacity: 0.35;
   }
   .calc {
-    width: 400px;
+    position: relative;
+    width: 420px;
     max-width: 100%;
-    background: #000;
-    border-radius: 20px;
-    padding: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  }
-  .display {
-    background: var(--display);
-    color: #fff;
-    font-size: 48px;
-    font-weight: 300;
-    text-align: right;
-    padding: 18px 14px 8px;
-    min-height: 60px;
-    overflow: hidden;
-    word-break: break-all;
-    line-height: 1;
+    background: rgba(20, 20, 28, 0.55);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 20px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.5),
+      0 2px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.08);
   }
   .mem-indicator {
-    color: var(--op);
-    font-size: 14px;
+    color: #ff9f0a;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
     text-align: right;
     min-height: 18px;
-    padding: 0 14px;
+    padding: 4px 8px 0;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .display {
+    color: #fff;
+    font-size: 54px;
+    font-weight: 300;
+    text-align: right;
+    padding: 10px 10px 18px;
+    min-height: 70px;
+    overflow: hidden;
+    word-break: break-all;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 20px rgba(255,159,10,0.15);
   }
   .grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-top: 10px;
+    gap: 10px;
   }
   button {
-    height: 54px;
-    border: none;
-    border-radius: 12px;
+    height: 58px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-family: inherit;
     font-size: 18px;
     font-weight: 500;
     color: var(--text);
     cursor: pointer;
-    transition: background 0.1s, transform 0.05s;
+    transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    background: var(--num-grad);
+    box-shadow:
+      0 4px 12px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      inset 0 -1px 0 rgba(0,0,0,0.25);
   }
-  button:active { transform: scale(0.95); }
-  .num { background: var(--num); font-size: 22px; }
+  button:hover { filter: brightness(1.15); }
+  button:active {
+    transform: scale(0.94);
+    filter: brightness(0.9);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .num { background: var(--num-grad); font-size: 24px; font-weight: 400; }
   .num:hover { background: var(--num-hover); }
-  .op { background: var(--op); font-weight: 600; font-size: 22px; }
+  .op {
+    background: var(--op-grad);
+    font-weight: 600;
+    font-size: 24px;
+    box-shadow:
+      0 4px 16px rgba(255,106,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.25),
+      inset 0 -1px 0 rgba(0,0,0,0.2);
+  }
   .op:hover { background: var(--op-hover); }
-  .op.active { background: #fff; color: var(--op); }
-  .fn { background: var(--fn); }
+  .op.active {
+    background: linear-gradient(145deg, #fff, #eee);
+    color: #ff6a00;
+    box-shadow: 0 4px 20px rgba(255,159,10,0.6);
+  }
+  .fn { background: var(--fn-grad); font-size: 16px; font-weight: 500; }
   .fn:hover { background: var(--fn-hover); }
-  .mem { background: var(--mem); font-size: 15px; font-weight: 600; }
+  .mem {
+    background: var(--mem-grad);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow:
+      0 4px 14px rgba(42,78,208,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
   .mem:hover { background: var(--mem-hover); }
-  .clear { background: #a5a5a5; color: #000; font-weight: 600; font-size: 22px; }
-  .clear:hover { background: #d4d4d4; }
+  .clear {
+    background: var(--clear-grad);
+    color: #0a0a18;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .clear:hover { background: var(--clear-hover); }
+  @media (max-width: 460px) {
+    .calc { padding: 14px; border-radius: 22px; }
+    button { height: 50px; font-size: 16px; }
+    .num { font-size: 20px; }
+    .op { font-size: 20px; }
+    .display { font-size: 42px; }
+  }
 </style>
 </head>
 <body>
