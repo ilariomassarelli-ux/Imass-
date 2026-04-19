@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Calcolatrice</title>
+<title>Calcolatrice scientifica</title>
 <style>
   :root {
     --bg: #1c1c1e;
@@ -12,8 +12,10 @@
     --num-hover: #555;
     --op: #ff9f0a;
     --op-hover: #ffb340;
-    --fn: #a5a5a5;
-    --fn-hover: #d4d4d4;
+    --fn: #505050;
+    --fn-hover: #6a6a6a;
+    --mem: #2a6fdb;
+    --mem-hover: #4a8ef0;
     --text: #fff;
   }
   html, body {
@@ -29,7 +31,7 @@
     box-sizing: border-box;
   }
   .calc {
-    width: 320px;
+    width: 400px;
     max-width: 100%;
     background: #000;
     border-radius: 20px;
@@ -39,98 +41,150 @@
   .display {
     background: var(--display);
     color: #fff;
-    font-size: 56px;
+    font-size: 48px;
     font-weight: 300;
     text-align: right;
-    padding: 20px 14px 10px;
-    min-height: 70px;
+    padding: 18px 14px 8px;
+    min-height: 60px;
     overflow: hidden;
     word-break: break-all;
     line-height: 1;
   }
+  .mem-indicator {
+    color: var(--op);
+    font-size: 14px;
+    text-align: right;
+    min-height: 18px;
+    padding: 0 14px;
+  }
   .grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-top: 14px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 10px;
   }
   button {
-    height: 64px;
+    height: 54px;
     border: none;
-    border-radius: 50%;
-    font-size: 24px;
+    border-radius: 12px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--text);
     cursor: pointer;
-    transition: background 0.1s;
+    transition: background 0.1s, transform 0.05s;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  button:active { transform: scale(0.96); }
-  .num { background: var(--num); }
+  button:active { transform: scale(0.95); }
+  .num { background: var(--num); font-size: 22px; }
   .num:hover { background: var(--num-hover); }
-  .op { background: var(--op); font-weight: 600; }
+  .op { background: var(--op); font-weight: 600; font-size: 22px; }
   .op:hover { background: var(--op-hover); }
   .op.active { background: #fff; color: var(--op); }
-  .fn { background: var(--fn); color: #000; font-weight: 600; }
+  .fn { background: var(--fn); }
   .fn:hover { background: var(--fn-hover); }
-  .zero { grid-column: span 2; border-radius: 32px; text-align: left; padding-left: 26px; }
+  .mem { background: var(--mem); font-size: 15px; font-weight: 600; }
+  .mem:hover { background: var(--mem-hover); }
+  .clear { background: #a5a5a5; color: #000; font-weight: 600; font-size: 22px; }
+  .clear:hover { background: #d4d4d4; }
 </style>
 </head>
 <body>
   <div class="calc">
+    <div class="mem-indicator" id="memInd"></div>
     <div class="display" id="display">0</div>
     <div class="grid">
-      <button class="fn" data-k="C">C</button>
-      <button class="fn" data-k="±">±</button>
-      <button class="fn" data-k="%">%</button>
+      <button class="mem" data-k="MC">MC</button>
+      <button class="mem" data-k="MR">MR</button>
+      <button class="mem" data-k="MS">MS</button>
+      <button class="mem" data-k="M+">M+</button>
+      <button class="mem" data-k="M-">M−</button>
+
+      <button class="fn" data-k="sin">sin</button>
+      <button class="fn" data-k="cos">cos</button>
+      <button class="fn" data-k="tan">tan</button>
+      <button class="fn" data-k="log">log</button>
+      <button class="fn" data-k="ln">ln</button>
+
+      <button class="fn" data-k="sqrt">√</button>
+      <button class="fn" data-k="sq">x²</button>
+      <button class="fn" data-k="inv">1/x</button>
+      <button class="fn" data-k="pi">π</button>
+      <button class="fn" data-k="e">e</button>
+
+      <button class="clear" data-k="C">C</button>
+      <button class="clear" data-k="±">±</button>
+      <button class="clear" data-k="%">%</button>
+      <button class="fn" data-k="pow">xʸ</button>
       <button class="op" data-k="/">÷</button>
 
       <button class="num" data-k="7">7</button>
       <button class="num" data-k="8">8</button>
       <button class="num" data-k="9">9</button>
+      <button class="fn" data-k="fact">n!</button>
       <button class="op" data-k="*">×</button>
 
       <button class="num" data-k="4">4</button>
       <button class="num" data-k="5">5</button>
       <button class="num" data-k="6">6</button>
+      <button class="fn" data-k="abs">|x|</button>
       <button class="op" data-k="-">−</button>
 
       <button class="num" data-k="1">1</button>
       <button class="num" data-k="2">2</button>
       <button class="num" data-k="3">3</button>
+      <button class="fn" data-k="mode">DEG</button>
       <button class="op" data-k="+">+</button>
 
-      <button class="num zero" data-k="0">0</button>
+      <button class="num" data-k="0" style="grid-column: span 2;">0</button>
       <button class="num" data-k=".">,</button>
+      <button class="fn" data-k="back">⌫</button>
       <button class="op" data-k="=">=</button>
     </div>
   </div>
 
 <script>
   const display = document.getElementById('display');
+  const memInd = document.getElementById('memInd');
   let current = '0';
   let accumulator = null;
   let pendingOp = null;
   let startNew = true;
+  let memory = 0;
+  let angleMode = 'DEG'; // or 'RAD'
 
   function render() {
-    let shown = current;
-    if (shown.includes('.')) shown = shown.replace('.', ',');
-    display.textContent = shown;
+    display.textContent = current.includes('.') ? current.replace('.', ',') : current;
     document.querySelectorAll('.op').forEach(b => b.classList.remove('active'));
-    if (pendingOp && !startNew === false) {
+    if (pendingOp && startNew) {
       const btn = document.querySelector(`.op[data-k="${pendingOp}"]`);
-      if (btn && startNew) btn.classList.add('active');
+      if (btn) btn.classList.add('active');
     }
+    const parts = [];
+    if (memory !== 0) parts.push('M');
+    parts.push(angleMode);
+    memInd.textContent = parts.join('  ');
+    document.querySelector('[data-k="mode"]').textContent = angleMode;
   }
 
-  function parse() { return parseFloat(current); }
+  function parse() { return parseFloat(current) || 0; }
 
   function format(v) {
-    if (!isFinite(v)) return 'Errore';
-    if (Number.isInteger(v)) return v.toString();
-    return parseFloat(v.toFixed(10)).toString();
+    if (!isFinite(v) || isNaN(v)) return 'Errore';
+    if (Number.isInteger(v) && Math.abs(v) < 1e16) return v.toString();
+    return parseFloat(v.toPrecision(12)).toString();
+  }
+
+  function setResult(v) { current = format(v); startNew = true; }
+
+  function toRad(x) { return angleMode === 'DEG' ? x * Math.PI / 180 : x; }
+  function fromRad(x) { return angleMode === 'DEG' ? x * 180 / Math.PI : x; }
+
+  function factorial(n) {
+    if (n < 0 || !Number.isInteger(n) || n > 170) return NaN;
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
   }
 
   function applyPending() {
@@ -143,25 +197,55 @@
         case '-': accumulator -= n; break;
         case '*': accumulator *= n; break;
         case '/': accumulator = n === 0 ? NaN : accumulator / n; break;
+        case 'pow': accumulator = Math.pow(accumulator, n); break;
       }
     }
     current = format(accumulator);
   }
 
   function press(k) {
-    if (/[0-9]/.test(k)) {
+    if (/^[0-9]$/.test(k)) {
       if (startNew || current === '0') { current = k; startNew = false; }
       else current += k;
     } else if (k === '.') {
       if (startNew) { current = '0.'; startNew = false; }
       else if (!current.includes('.')) current += '.';
+    } else if (k === 'back') {
+      if (!startNew && current.length > 1) current = current.slice(0, -1);
+      else { current = '0'; startNew = true; }
     } else if (k === 'C') {
       current = '0'; accumulator = null; pendingOp = null; startNew = true;
     } else if (k === '±') {
       if (current !== '0') current = current.startsWith('-') ? current.slice(1) : '-' + current;
     } else if (k === '%') {
-      current = format(parse() / 100); startNew = true;
-    } else if (['+','-','*','/'].includes(k)) {
+      setResult(parse() / 100);
+    } else if (k === 'pi') {
+      setResult(Math.PI); startNew = false;
+    } else if (k === 'e') {
+      setResult(Math.E); startNew = false;
+    } else if (k === 'sqrt') {
+      setResult(Math.sqrt(parse()));
+    } else if (k === 'sq') {
+      setResult(parse() ** 2);
+    } else if (k === 'inv') {
+      const n = parse(); setResult(n === 0 ? NaN : 1 / n);
+    } else if (k === 'abs') {
+      setResult(Math.abs(parse()));
+    } else if (k === 'fact') {
+      setResult(factorial(parse()));
+    } else if (k === 'sin') { setResult(Math.sin(toRad(parse())));
+    } else if (k === 'cos') { setResult(Math.cos(toRad(parse())));
+    } else if (k === 'tan') { setResult(Math.tan(toRad(parse())));
+    } else if (k === 'log') { setResult(Math.log10(parse()));
+    } else if (k === 'ln')  { setResult(Math.log(parse()));
+    } else if (k === 'mode') {
+      angleMode = angleMode === 'DEG' ? 'RAD' : 'DEG';
+    } else if (k === 'MC') { memory = 0;
+    } else if (k === 'MR') { current = format(memory); startNew = true;
+    } else if (k === 'MS') { memory = parse();
+    } else if (k === 'M+') { memory += parse(); startNew = true;
+    } else if (k === 'M-') { memory -= parse(); startNew = true;
+    } else if (['+','-','*','/','pow'].includes(k)) {
       if (!startNew) applyPending();
       else if (accumulator === null) accumulator = parse();
       pendingOp = k; startNew = true;
@@ -177,9 +261,9 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    const map = { 'Enter': '=', 'Escape': 'C', 'Backspace': 'C', ',': '.' };
+    const map = { 'Enter': '=', 'Escape': 'C', 'Backspace': 'back', ',': '.', '^': 'pow' };
     const k = map[e.key] ?? e.key;
-    if (/^[0-9.+\-*/%=C]$/.test(k) || k === '=' || k === 'C') {
+    if (/^[0-9.+\-*/%=]$/.test(k) || ['C','back','pow'].includes(k)) {
       e.preventDefault();
       press(k);
     }
