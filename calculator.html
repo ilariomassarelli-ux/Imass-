@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calcolatrice</title>
+<style>
+  :root {
+    --bg: #1c1c1e;
+    --display: #000;
+    --num: #333;
+    --num-hover: #555;
+    --op: #ff9f0a;
+    --op-hover: #ffb340;
+    --fn: #a5a5a5;
+    --fn-hover: #d4d4d4;
+    --text: #fff;
+  }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .calc {
+    width: 320px;
+    max-width: 100%;
+    background: #000;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .display {
+    background: var(--display);
+    color: #fff;
+    font-size: 56px;
+    font-weight: 300;
+    text-align: right;
+    padding: 20px 14px 10px;
+    min-height: 70px;
+    overflow: hidden;
+    word-break: break-all;
+    line-height: 1;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  button {
+    height: 64px;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active { transform: scale(0.96); }
+  .num { background: var(--num); }
+  .num:hover { background: var(--num-hover); }
+  .op { background: var(--op); font-weight: 600; }
+  .op:hover { background: var(--op-hover); }
+  .op.active { background: #fff; color: var(--op); }
+  .fn { background: var(--fn); color: #000; font-weight: 600; }
+  .fn:hover { background: var(--fn-hover); }
+  .zero { grid-column: span 2; border-radius: 32px; text-align: left; padding-left: 26px; }
+</style>
+</head>
+<body>
+  <div class="calc">
+    <div class="display" id="display">0</div>
+    <div class="grid">
+      <button class="fn" data-k="C">C</button>
+      <button class="fn" data-k="±">±</button>
+      <button class="fn" data-k="%">%</button>
+      <button class="op" data-k="/">÷</button>
+
+      <button class="num" data-k="7">7</button>
+      <button class="num" data-k="8">8</button>
+      <button class="num" data-k="9">9</button>
+      <button class="op" data-k="*">×</button>
+
+      <button class="num" data-k="4">4</button>
+      <button class="num" data-k="5">5</button>
+      <button class="num" data-k="6">6</button>
+      <button class="op" data-k="-">−</button>
+
+      <button class="num" data-k="1">1</button>
+      <button class="num" data-k="2">2</button>
+      <button class="num" data-k="3">3</button>
+      <button class="op" data-k="+">+</button>
+
+      <button class="num zero" data-k="0">0</button>
+      <button class="num" data-k=".">,</button>
+      <button class="op" data-k="=">=</button>
+    </div>
+  </div>
+
+<script>
+  const display = document.getElementById('display');
+  let current = '0';
+  let accumulator = null;
+  let pendingOp = null;
+  let startNew = true;
+
+  function render() {
+    let shown = current;
+    if (shown.includes('.')) shown = shown.replace('.', ',');
+    display.textContent = shown;
+    document.querySelectorAll('.op').forEach(b => b.classList.remove('active'));
+    if (pendingOp && !startNew === false) {
+      const btn = document.querySelector(`.op[data-k="${pendingOp}"]`);
+      if (btn && startNew) btn.classList.add('active');
+    }
+  }
+
+  function parse() { return parseFloat(current); }
+
+  function format(v) {
+    if (!isFinite(v)) return 'Errore';
+    if (Number.isInteger(v)) return v.toString();
+    return parseFloat(v.toFixed(10)).toString();
+  }
+
+  function applyPending() {
+    const n = parse();
+    if (accumulator === null || pendingOp === null) {
+      accumulator = n;
+    } else {
+      switch (pendingOp) {
+        case '+': accumulator += n; break;
+        case '-': accumulator -= n; break;
+        case '*': accumulator *= n; break;
+        case '/': accumulator = n === 0 ? NaN : accumulator / n; break;
+      }
+    }
+    current = format(accumulator);
+  }
+
+  function press(k) {
+    if (/[0-9]/.test(k)) {
+      if (startNew || current === '0') { current = k; startNew = false; }
+      else current += k;
+    } else if (k === '.') {
+      if (startNew) { current = '0.'; startNew = false; }
+      else if (!current.includes('.')) current += '.';
+    } else if (k === 'C') {
+      current = '0'; accumulator = null; pendingOp = null; startNew = true;
+    } else if (k === '±') {
+      if (current !== '0') current = current.startsWith('-') ? current.slice(1) : '-' + current;
+    } else if (k === '%') {
+      current = format(parse() / 100); startNew = true;
+    } else if (['+','-','*','/'].includes(k)) {
+      if (!startNew) applyPending();
+      else if (accumulator === null) accumulator = parse();
+      pendingOp = k; startNew = true;
+    } else if (k === '=') {
+      applyPending();
+      pendingOp = null; accumulator = null; startNew = true;
+    }
+    render();
+  }
+
+  document.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => press(b.dataset.k));
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const map = { 'Enter': '=', 'Escape': 'C', 'Backspace': 'C', ',': '.' };
+    const k = map[e.key] ?? e.key;
+    if (/^[0-9.+\-*/%=C]$/.test(k) || k === '=' || k === 'C') {
+      e.preventDefault();
+      press(k);
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>
