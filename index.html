@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Formica in tondo</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #111;
+    color: #eee;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
+  #info {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    opacity: 0.7;
+  }
+  canvas {
+    display: block;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<div id="info">Premi BACKSPACE per mettere in pausa / riprendere</div>
+<canvas id="stage" width="600" height="600"></canvas>
+<script>
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const radius = 200;
+
+  let angle = 0;
+  const speed = 0.02;
+  let running = true;
+
+  function drawTrack() {
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawAnt(x, y, rotation) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+
+    ctx.fillStyle = '#222';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+
+    // corpo (tre segmenti)
+    for (const [dx, r] of [[-12, 6], [0, 7], [12, 8]]) {
+      ctx.beginPath();
+      ctx.ellipse(dx, 0, r, r * 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // antenne
+    ctx.beginPath();
+    ctx.moveTo(-14, -3);
+    ctx.lineTo(-22, -10);
+    ctx.moveTo(-14, 3);
+    ctx.lineTo(-22, 10);
+    ctx.stroke();
+
+    // zampe
+    for (const side of [-1, 1]) {
+      for (const lx of [-4, 0, 4]) {
+        ctx.beginPath();
+        ctx.moveTo(lx, 0);
+        ctx.lineTo(lx + (lx === 0 ? 0 : lx * 0.5), side * 12);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawTrack();
+
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+    // la formica guarda nella direzione del moto (tangente)
+    const rotation = angle + Math.PI / 2;
+    drawAnt(x, y, rotation);
+
+    if (running) angle += speed;
+    requestAnimationFrame(frame);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      running = !running;
+    }
+  });
+
+  frame();
+</script>
+</body>
+</html>
